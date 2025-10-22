@@ -9,22 +9,19 @@ import matplotlib.pyplot as plt
 import cv2
 from sklearn.manifold import TSNE
 from tensorflow.keras.models import load_model
-from matplotlib.colors import ListedColormap
-from sklearn.cluster import KMeans
+from matplotlib.colors import ListedColormapS
 from sklearn.metrics import classification_report, confusion_matrix, silhouette_samples
 import umap
 
-# 读取原始数据
-X = np.load(r"PNW_dataset/pnw_x_test.npy")  # shape (1720, 3, 15000)
-y_test = np.load(r"PNW_dataset/pnw_y_test.npy")  # shape (1720,)
+# read data (this data is generated from 'preprocessing.py')
+X = np.load("pnw_x_test.npy")  # shape (1720, 3, 15000)
+y_test = np.load("pnw_y_test.npy")  # shape (1720,)
 
-# 1️⃣ 截取 4800:10500
+
 X_cut = X[:, :, 4800:10500]  # shape -> (1720, 3, 5700)
-
-# 2️⃣ 通道最后一维
 X_cut = np.transpose(X_cut, (0, 2, 1))  # shape -> (1720, 5700, 3)
 
-# 3️⃣ 插值到长度 3750
+# reshape
 N, L_old, C = X_cut.shape
 L_new = 3750
 X_resampled = np.empty((N, L_new, C), dtype=X_cut.dtype)
@@ -79,7 +76,6 @@ def visualize_2D_features(features_2d, labels, label_map=None,
     unique_labels = np.unique(labels)
     num_classes = len(unique_labels)
     
-    # 自动生成颜色
     cmap = plt.get_cmap('tab10') if num_classes <= 10 else plt.get_cmap('tab20')
     colors = [cmap(i) for i in range(num_classes)]
 
@@ -101,7 +97,7 @@ def visualize_2D_features(features_2d, labels, label_map=None,
 # ==============================
 # Main process
 # ==============================
-saved_encoder_model = load_model("D:/vscoding/STEAD/encoder_4x4x16_v2.h5")
+saved_encoder_model = load_model("model/encoder_4x4x16_v2.h5")
 reshaped_features = extract_features(saved_encoder_model, resized_x_test)
 
 # ---- t-SNE ----
